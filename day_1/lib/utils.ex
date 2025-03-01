@@ -51,24 +51,26 @@ end
 
 # MergeSort.sort([1, 5, 3, 2]) |> IO.inspect(label: "result")
 
-text = File.read!("./day_1/input")
-# IO.puts(text)
+defmodule Utils do
+  def read_input(fp) do
+    text = File.read!(fp)
+    # IO.puts(text)
 
-{left, right} =
-  String.split(text, "\n")
-  |> List.foldl({[], []}, fn line, {left, right} ->
-    [l, r] = String.split(line, ~r/\s+/, parts: 2)
+    {left, right} =
+      String.split(text, "\n")
+      |> List.foldl({[], []}, fn line, {left, right} ->
+        [l, r] = String.split(line, ~r/\s+/, parts: 2)
 
-    {
-      [String.to_integer(l)] ++ left,
-      [String.to_integer(r)] ++ right
-    }
-  end)
+        {
+          [String.to_integer(l)] ++ left,
+          [String.to_integer(r)] ++ right
+        }
+      end)
 
-left = MergeSort.sort(left)
-right = MergeSort.sort(right)
+    {left, right}
+  end
 
-diffs = Enum.zip(left, right) |> Enum.map(fn {l, r} -> l - r end)
-total_diff = List.foldl(diffs, 0, fn diff, acc -> acc + abs(diff) end)
-
-IO.puts(["Answer: ", inspect(total_diff)])
+  def sort(xs) do
+    MergeSort.sort(xs)
+  end
+end
