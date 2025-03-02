@@ -1,7 +1,7 @@
 ```bash
 $ cd day_20
 
-$ mix run -e "Part1.main()"
+$ mix run -e "Main.ex()"
 
 Path
  ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
