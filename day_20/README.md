@@ -24,6 +24,11 @@ Answer: 1499
 ```
 
 ```bash
-$ mix run -e "Main.p2()"
-Answer:
+$ \time -v mix run -e "Main.p2()"
+Answer: 1027164
+
+[...] >:(
+User time (seconds): 42.24
+System time (seconds): 45.58
+Maximum resident set size (kbytes): 1205808
 ```

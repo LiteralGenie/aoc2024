@@ -61,7 +61,7 @@ defmodule Main do
 
   def p2 do
     fp = "./lib/input"
-    cheat_duration = 6
+    cheat_duration = 20
     solution = Utils.solve(fp, cheat_duration)
 
     target_savings = 100

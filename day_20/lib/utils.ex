@@ -99,51 +99,35 @@ defmodule Utils do
     {tile.r, tile.c}
   end
 
-  defp neighbor_coords(total_set, target_set, row_count, col_count, radius) do
-    case radius do
-      0 ->
-        total_set
+  defp neighbor_coords(start, row_count, col_count, radius) do
+    {sr, sc} = start
 
-      _ ->
-        expanded =
-          [{-1, 0}, {1, 0}, {0, -1}, {0, 1}]
-          |> Enum.flat_map(fn {r_off, c_off} ->
-            Enum.map(
-              target_set,
-              fn {r, c} ->
-                {r + r_off, c + c_off}
-              end
-            )
-          end)
-          |> MapSet.new()
+    rmin = max(0, sr - radius)
+    rmax = min(row_count - 1, sr + radius)
 
-        new_coords = MapSet.difference(expanded, total_set)
+    cmin = max(0, sc - radius)
+    cmax = min(col_count - 1, sc + radius)
 
-        new_total = MapSet.union(total_set, new_coords)
-
-        new_total =
-          MapSet.union(
-            new_total,
-            neighbor_coords(new_total, new_coords, row_count, col_count, radius - 1)
-          )
-
-        new_total
-    end
+    rmin..rmax
+    |> Enum.flat_map(fn r ->
+      cmin..cmax
+      |> Enum.map(fn c ->
+        {r, c}
+      end)
+    end)
+    |> Enum.filter(fn {r, c} -> abs(r - sr) + abs(c - sc) <= radius end)
   end
 
   defp neighbors(grid, tile_id, row_count, col_count, radius) do
     coords =
       neighbor_coords(
-        MapSet.new([tile_id]),
-        MapSet.new([tile_id]),
+        tile_id,
         row_count,
         col_count,
         radius
       )
 
     coords
-    |> Enum.filter(fn {r, _} -> r >= 0 and r < row_count end)
-    |> Enum.filter(fn {_, c} -> c >= 0 and c < col_count end)
     |> Enum.map(fn coord -> Map.get(grid, coord) end)
   end
 
