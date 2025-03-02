@@ -9,7 +9,7 @@ defmodule Utils do
     defstruct [:grid, :row_count, :col_count, :links, :jumps]
   end
 
-  def solve(fp) do
+  def solve(fp, max_cheat_duration) do
     {grid, row_count, col_count} = Utils.read_input(fp)
 
     {_, start} = Enum.find(grid, fn {_, tile} -> tile.type === :start end)
@@ -21,20 +21,28 @@ defmodule Utils do
         tile = Map.get(grid, tile_id)
 
         acc ++
-          (neighbors(grid, tile_id, row_count, col_count, 2)
+          (neighbors(grid, tile_id, row_count, col_count, max_cheat_duration)
            |> Enum.map(fn candidate ->
-             candidate_link = Map.get(links, hash(candidate))
+             candidate_id = hash(candidate)
+
+             {er, ec} = candidate_id
+             {sr, sc} = tile_id
+             duration = abs(er - sr) + abs(ec - sc)
+
+             candidate_link = Map.get(links, candidate_id)
 
              case candidate_link do
                nil ->
-                 {tile_id, hash(candidate), tile_dist, nil}
+                 {tile_id, candidate_id, tile_dist, nil, duration}
 
                {candidate_dist, _} ->
-                 {tile_id, hash(candidate), tile_dist, candidate_dist}
+                 {tile_id, candidate_id, tile_dist, candidate_dist, duration}
              end
            end)
-           |> Enum.filter(fn {_, _, _, x} -> x != nil end)
-           |> Enum.filter(fn {_, _, x, y} -> y > x + 2 end))
+           |> Enum.filter(fn {_, _, _, x, _} -> x != nil end)
+           |> Enum.filter(fn {_, _, start_dist, end_dist, duration} ->
+             end_dist > start_dist + duration
+           end))
       end)
 
     %Solution{
@@ -91,43 +99,61 @@ defmodule Utils do
     {tile.r, tile.c}
   end
 
-  defp neighbor_coords({r, c}, row_count, col_count, radius) do
+  defp neighbor_coords(total_set, target_set, row_count, col_count, radius) do
     case radius do
       0 ->
-        [{r, c}]
+        total_set
 
       _ ->
-        [{-1, 0}, {1, 0}, {0, -1}, {0, 1}]
-        |> Enum.map(fn {r_off, c_off} -> {r + r_off, c + c_off} end)
-        |> Enum.flat_map(fn c -> neighbor_coords(c, row_count, col_count, radius - 1) end)
+        expanded =
+          [{-1, 0}, {1, 0}, {0, -1}, {0, 1}]
+          |> Enum.flat_map(fn {r_off, c_off} ->
+            Enum.map(
+              target_set,
+              fn {r, c} ->
+                {r + r_off, c + c_off}
+              end
+            )
+          end)
+          |> MapSet.new()
+
+        new_coords = MapSet.difference(expanded, total_set)
+
+        new_total = MapSet.union(total_set, new_coords)
+
+        new_total =
+          MapSet.union(
+            new_total,
+            neighbor_coords(new_total, new_coords, row_count, col_count, radius - 1)
+          )
+
+        new_total
     end
   end
 
   defp neighbors(grid, tile_id, row_count, col_count, radius) do
     coords =
-      MapSet.new(
-        neighbor_coords(
-          tile_id,
-          row_count,
-          col_count,
-          radius
-        )
+      neighbor_coords(
+        MapSet.new([tile_id]),
+        MapSet.new([tile_id]),
+        row_count,
+        col_count,
+        radius
       )
 
     coords
     |> Enum.filter(fn {r, _} -> r >= 0 and r < row_count end)
     |> Enum.filter(fn {_, c} -> c >= 0 and c < col_count end)
-    # |> IO.inspect(label: "coords")
     |> Enum.map(fn coord -> Map.get(grid, coord) end)
   end
 
   defp init_links(grid, row_count, col_count, links, tile, prev_tile, curr_cost) do
-    neighbors(grid, hash(tile), row_count, col_count, 1)
-
     next_tile =
       neighbors(grid, hash(tile), row_count, col_count, 1)
-      |> Enum.find(fn tile ->
-        tile.type != :wall and hash(tile) != hash(prev_tile)
+      |> Enum.find(fn candidate ->
+        candidate.type != :wall and
+          hash(candidate) != hash(prev_tile) and
+          hash(candidate) != hash(tile)
       end)
 
     links =

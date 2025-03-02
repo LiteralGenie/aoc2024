@@ -1,7 +1,7 @@
 ```bash
 $ cd day_20
 
-$ mix run -e "Main.ex()"
+$ mix run -e "Main.p1_ex()"
 
 Path
  ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
@@ -16,4 +16,14 @@ Jumps (time saved, start, end)
 [...]
 
 Answer: 44
+```
+
+```bash
+$ mix run -e "Main.p1()"
+Answer: 1499
+```
+
+```bash
+$ mix run -e "Main.p2()"
+Answer:
 ```

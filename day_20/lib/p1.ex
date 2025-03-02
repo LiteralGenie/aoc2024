@@ -1,8 +1,10 @@
 defmodule Main do
-  def ex do
+  def p1_ex do
     fp = "./lib/example"
+    cheat_duration = 2
+    solution = Utils.solve(fp, cheat_duration)
+
     target_savings = 1
-    solution = Utils.solve(fp)
 
     print_debug(solution)
 
@@ -11,7 +13,7 @@ defmodule Main do
       inspect(
         length(
           Enum.filter(solution.jumps, fn
-            {_, _, s, e} -> e - s - 2 >= target_savings
+            {_, _, s, e, dur} -> e - s - dur >= target_savings
           end)
         )
       )
@@ -20,17 +22,56 @@ defmodule Main do
 
   def p1 do
     fp = "./lib/input"
-    target_savings = 100
-    solution = Utils.solve(fp)
+    cheat_duration = 2
+    solution = Utils.solve(fp, cheat_duration)
 
-    print_debug(solution)
+    target_savings = 100
 
     IO.puts([
       "\nAnswer: ",
       inspect(
         length(
           Enum.filter(solution.jumps, fn
-            {_, _, s, e} -> e - s - 2 >= target_savings
+            {_, _, s, e, dur} -> e - s - dur >= target_savings
+          end)
+        )
+      )
+    ])
+  end
+
+  def p2_ex do
+    fp = "./lib/example"
+    cheat_duration = 20
+    solution = Utils.solve(fp, cheat_duration)
+    print_debug(solution)
+
+    target_savings = 50
+
+    IO.puts([
+      "\nAnswer: ",
+      inspect(
+        length(
+          Enum.filter(solution.jumps, fn
+            {_, _, s, e, dur} -> e - s - dur >= target_savings
+          end)
+        )
+      )
+    ])
+  end
+
+  def p2 do
+    fp = "./lib/input"
+    cheat_duration = 6
+    solution = Utils.solve(fp, cheat_duration)
+
+    target_savings = 100
+
+    IO.puts([
+      "\nAnswer: ",
+      inspect(
+        length(
+          Enum.filter(solution.jumps, fn
+            {_, _, s, e, dur} -> e - s - dur >= target_savings
           end)
         )
       )
@@ -57,9 +98,9 @@ defmodule Main do
     IO.puts("\nJumps (time saved, start, end)")
 
     solution.jumps
-    |> Enum.sort(fn {_, _, a1, a2}, {_, _, b1, b2} -> a2 - a1 < b2 - b1 end)
-    |> Enum.each(fn {tile_id, candidate_id, tile_dist, candidate_dist} ->
-      score = candidate_dist - tile_dist - 2
+    |> Enum.sort(fn {_, _, a1, a2, a3}, {_, _, b1, b2, b3} -> a2 - a1 - a3 < b2 - b1 - b3 end)
+    |> Enum.each(fn {tile_id, candidate_id, tile_dist, candidate_dist, duration} ->
+      score = candidate_dist - tile_dist - duration
       IO.inspect({score, tile_dist, candidate_dist})
     end)
   end
