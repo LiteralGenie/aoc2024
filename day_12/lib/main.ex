@@ -1,5 +1,5 @@
 defmodule Main do
-  def ex1() do
+  def p1e1() do
     regions = Solver.solve("./lib/example1")
 
     IO.puts([
@@ -8,7 +8,7 @@ defmodule Main do
     ])
   end
 
-  def ex2() do
+  def p1e2() do
     regions = Solver.solve("./lib/example2")
 
     IO.puts([
@@ -17,7 +17,7 @@ defmodule Main do
     ])
   end
 
-  def ex3() do
+  def p1e3() do
     regions = Solver.solve("./lib/example3")
 
     IO.puts([

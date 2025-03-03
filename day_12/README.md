@@ -46,3 +46,16 @@ For example...
 ```
 
 For counting south-facing sides, we do the same but treat points with their south-side covered as dividers. For counting east / west sides, we check columns instead of rows.
+
+### Running
+
+```bash
+cd day_12
+
+mix run -e "Main.p1()"
+mix run -e "Main.p2()"
+
+mix run -e "Main.p1e1()"
+mix run -e "Main.p1e2()"
+mix run -e "Main.p1e3()"
+```
